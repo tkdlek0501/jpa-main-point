@@ -32,7 +32,8 @@ private final EntityManager em; <br>
   <span>@JoinTable을 통해 중간 테이블을 사용해야하는데, 이러면 중간 테이블은<br>
   단순히 매핑해주는 역할만 할 수 있고 다른 컬럼들을 가지지 못하기 때문에 유연하지 못하게 된다. </span>
   <li>@JoinColumn</li>
-  <span>외래키가 있는 테이블과 매핑된 엔티티에서 설정해야 한다. (연관관계의 주인, N 쪽)</span>
+  <span>외래키가 있는 테이블과 매핑된 엔티티에서 설정해야 한다. (연관관계의 주인, N 쪽)</span> <br>
+  <span>반대쪽은 mappedBy로 명시 해줘야 한다.</span>
   <li>@Enumerated</li>
   <span>enum 타입을 사용할 때 필요한 어노테이션</span><br>
   <span>사용시에 반드시 @Enumerated(EnumType.STRING) 처럼 설정해야한다.</span>
