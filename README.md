@@ -18,21 +18,6 @@ class 레벨에 @RequiredArgsConstructor <br>
 private final EntityManager em; <br> 
 </p>
 
-<h3 style="font-weight:bold">토이 프로젝트 중 정리</h3>
-<span>알아둬야할 것</span>
-<ul>
-  <li>1. properties ddl 설정 : drop-create 안되면 update로 변경 (기존 data와 상이해 alter가 안되는 문제)</li>
-  <li>2. transaction시 cascade 관련 문제 : <br> 
-    FK를 가지는 객체에 반대쪽 객체를 cascade 해야한다. (안하거나 양쪽에 하면 문제 발생) <br>
-    2개 이상 등록 시에 인스턴스를 공통으로 사용하면 같은 엔티티로 인식하여(이 부분 공부 필요) 이미 등록된 것으로 <br>
-    판단해서 에러가 난다. <br>
-    즉 같은 data를 가지더라도 인스턴스를 따로 만들어 사용해야 한다.
-  </li>
-  <li>
-    @ToString도 FK를 가진 쪽에 두어야 순환참조 문제 발생하지 않는다.
-  </li>
-</ul>
-
 <h3 style="font-weight:bold;">어노테이션 정리</h3>
 <ul>
   <li>@ManyToOne</li>
