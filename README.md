@@ -20,11 +20,11 @@ private final EntityManager em; <br>
 
 <h3 style="font-weight:bold;">Dirty Checking(변경 감지)</h3>
 <p>엔티티를 변경할 때 사용하는 방법, transaction할 때 변경된 값들을 감지 후 자동으로 update 한다.</p>
-<ul>
-  <li>1. transaction이 있는 서비스 계층에 식별자, 변경할 data 전달</li>
-  <li>2. 식별자를 통해 엔티티를 조회해서 영속성 컨텍스트로 등록 후 값을 변경(이때 setter를 지양하고 엔티티의 메서드 이용)</li>
-  <li>3. transaction 커밋 시점에 변경 감지 실행</li>
-</ul>
+<ol>
+  <li>transaction이 있는 서비스 계층에 식별자, 변경할 data 전달</li>
+  <li>식별자를 통해 엔티티를 조회해서 영속성 컨텍스트로 등록 후 값을 변경(이때 setter를 지양하고 엔티티의 메서드 이용)</li>
+  <li>transaction 커밋 시점에 변경 감지 실행</li>
+</ol>
 
 <h3 style="font-weight:bold;">어노테이션 정리</h3>
 <ul>
