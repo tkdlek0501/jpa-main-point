@@ -61,26 +61,22 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
 <p>프록시는 즉시 로딩과 지연 로딩을 이해하기 위한 기초라고 생각, 실제로 getReference() 사용 거의 안한다</p>
 
 <h3 style="font-weight:bold;">즉시 로딩과 지연 로딩</h3>
-<ul><b>지연 로딩</b>
-  <li>
+<ul><b>지연 로딩</b><br>
     객체 Member 와 Team이 연관관계일 때, Member만 조회해도 되는데 Team까지 조회되는 경우는 효율적이지 않다.<br>
   -> 지연 로딩(LAZY)으로 해결 가능, 처음 Member를 조회할 때가 아니라 실제로 Team의 필드를 가져올 때 team 조회 쿼리를 발생시켜 조회한다
-  </li>
 </ul>
-<ul><b>즉시 로딩</b>
-  <li>
+<ul><b>즉시 로딩</b><br>
     만약 Member와 Team을 항상 같이 조회한다면 즉시 로딩(EAGER)을 사용해서 한번에 조회할 수 있다.<br>
     *but, 실무에서는 가급적 지연로딩을 사용해야 한다<br>
-    - 즉시 로딩 적용시 예상치 못한 SQL이 발생할 수 있기 때문에
-    -> find() 이용시 모든 연관 관계 테이블을 join 해서 가져옴
-    - 즉시 로딩은 JPQL에서 N+1 문제를 일으킨다
+    - 즉시 로딩 적용시 예상치 못한 SQL이 발생할 수 있기 때문에<br>
+    -> find() 이용시 모든 연관 관계 테이블을 join 해서 가져옴<br>
+    - 즉시 로딩은 JPQL에서 N+1 문제를 일으킨다<br>
     -> Member를 createQuery()를 이용해 JPQL로 조회시 Team이 EAGER로 돼있다면 JPQL에 의해
-    Member만 조회 쿼리(1)를 보낸 직후 결과 row 수만큼 Team 조회 쿼리(N)을 발생시킨다
-    - @ManyToOne, @OneToOne(~ToOne)은 기본 설정이 즉시 로딩이다
+    Member만 조회 쿼리(1)를 보낸 직후 결과 row 수만큼 Team 조회 쿼리(N)을 발생시킨다<br>
+    - @ManyToOne, @OneToOne(~ToOne)은 기본 설정이 즉시 로딩이다<br>
     -> 실무에서는 신경써서 LAZY로 설정해야 한다
-  </li>
 </ul>
-<ol>* N+1 문제 해결 방법
+<ol><b>* N+1 문제 해결 방법</b>
   <li>우선 모든 연관관계에서 지연 로딩으로 설정(@~ToOne 에서는 직접 설정 필요)</li>
   <li>JPQL에서 fetch join을 사용해서 필요한 테이블만 join해서 한 번에 가져오기</li>
   <li>@EntityGraph 를 이용하는 방법도 있다</li>
