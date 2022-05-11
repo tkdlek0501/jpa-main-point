@@ -1,7 +1,8 @@
 # jpa-main-point
 JPA를 이용한 웹 애플리케이션 개발 중 의문 사항, 공부 정리
 
-<h3 style="font-weight:bold;">영속성 컨텍스트</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">영속성 컨텍스트</h3></summary>
 <p>
 엔티티를 영구 저장하는 환경 <br>
 애플리케이션과 데이터베이스 사이에서 객체를 보관하는 가상의 데이터베이스 같은 역할을 한다. <br>
@@ -17,16 +18,20 @@ private EntityManager em; <br>
 class 레벨에 @RequiredArgsConstructor <br>
 private final EntityManager em; <br> 
 </p>
+</details>
 
-<h3 style="font-weight:bold;">Dirty Checking(변경 감지)</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">Dirty Checking(변경 감지)</h3></summary>
 <p>엔티티를 변경할 때 사용하는 방법, transaction할 때 변경된 값들을 감지 후 자동으로 update 한다.</p>
 <ol>
   <li>transaction이 있는 서비스 계층에 식별자, 변경할 data 전달</li>
   <li>식별자를 통해 엔티티를 조회해서 영속성 컨텍스트로 등록 후 값을 변경(이때 setter를 지양하고 엔티티의 메서드 이용)</li>
   <li>transaction 커밋 시점에 변경 감지 실행</li>
 </ol>
+</details>  
 
-<h3 style="font-weight:bold;">프록시 기초</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">프록시 기초</h3></summary>
 <p>1. em.find() : 데이터베이스를 통해 실제 엔티티 조회</p>
 <p>2. em.getReference() : 데이터베이스 조회를 미루는 가짜 엔티티 객체(프록시) 조회 (하이버네이트가 프록시를 만들어줌)</p>
 <ol><b>프록시</b>
@@ -59,8 +64,10 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
   </li>
 </ol>
 <p>프록시는 즉시 로딩과 지연 로딩을 이해하기 위한 기초라고 생각, 실제로 getReference() 사용 거의 안한다</p>
+</details>
 
-<h3 style="font-weight:bold;">즉시 로딩과 지연 로딩</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">즉시 로딩과 지연 로딩</h3></summary>
 <ul><b>지연 로딩</b><br>
     객체 Member 와 Team이 연관관계일 때, Member만 조회해도 되는데 Team까지 조회되는 경우는 효율적이지 않다.<br>
   -> 지연 로딩(LAZY)으로 해결 가능, 처음 Member를 조회할 때가 아니라 실제로 Team의 필드를 가져올 때 team 조회 쿼리를 발생시켜 조회한다
@@ -82,16 +89,20 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
   <li>@EntityGraph 를 이용하는 방법도 있다</li>
   <li>결론: 모든 연관관계에서 지연 로딩 사용하고, N+1 문제는 JPQL fetch join으로 해결하기</li>
 </ol>
+</details>
 
-<h3 style="font-weight:bold;">영속성 전이(CASCADE)</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">영속성 전이(CASCADE)</h3></summary>
 <ul>
   <li>특정 엔티티를 영속 상태로 만들 때 연관된 엔티티도 함께 영속 상태로 만들고 싶을 때 사용</li>
   <li>영속성 전이는 연관관계 매핑하는 것과 아무 관련 없다</li>
   <li>주의점: 자식 엔티티를 관리하는 부모 엔티티가 한 개이고, 생성/ 삭제 등의 생명 주기가 완전히 일치할 때 사용해야 한다. 부모와 관련없이 자식 엔티티만 따로 생성하거나 삭제해야한다면 사용 X</li>
   <li>결론: 설계 처음에는 cascade를 사용하지 않고 설계한 후 라이프 사이클이 완전 동일한 객체라면 cascade를 설정해서 리팩토링하는 설계가 좋다</li>
 </ul>
+</details>
 
-<h3 style="font-weight:bold;">고아 객체</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">고아 객체</h3></summary>
 <ul>
   <li>고아 객체 제거: 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제</li>
   <li>orphanRemoval = true 으로 설정</li>
@@ -109,8 +120,116 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
   -> 도메인 주도 설계(DDD) Aggregate Root 개념을 구현할 때 유용(부모 엔티티를 관리하는 레포지토리만 만들어서 자식 엔티티까지 관리할 수 있게 하는 것)
   </li>
 </ul>
+</details>
 
-<h3 style="font-weight:bold;">어노테이션 정리</h3>
+<details>
+  <summary><h3 style="font-weight:bold;">데이터 타입 분류</h3></summary>
+<p>1. 엔티티 타입</p>
+  <ul>
+    <li>@Entity로 정의하는 객체</li>
+    <li>데이터가 변해도 식별자로 지속해서 추적 가능</li>
+  </ul>
+<p>2. 값 타입</p>
+  <ul>
+    <li>int, Integer, String 등 단순히 값으로 사용하는 자바 기본 타입이나 객체</li>
+    <li>식별자가 없고 값만 있으므로 변경시 추적 불가</li>
+    <li> 기본값 타입
+      <ul>
+        <li>기본 타입 int, double</li>
+        <li>래퍼 클래스 integer, Long</li>
+        <li>String</li>
+        <li>생명주기를 엔티티에 의존</li>
+        <li>값 타입은 공유하면 안된다. (ex. 회원 이름 변경시 다른 회원의 이름도 함께 변경되면 안됨)</li>
+        <li>
+          참고) Integer같은 래퍼 클래스나 String 같은 특수 클래스는 주소값을 복사하므로 공유가 된다, 기본값 타입은 이렇게 공유하면 안된다.<br>
+          ex)<br>
+          Integer a = 10;<br>
+          Integer b = a;<br>
+          a = 20;<br>
+          a와 b는 같은 주소를 바라보므로 20의 값을 가지게 된다.
+        </li>
+      </ul>
+    <li>
+    <li> 임베디드 타입
+      <ul>
+        <li>
+          int, String 과 같은 값 타입<br>
+          ex) 회원 엔티티: id, name, startDate, endDate, city, street, zipcode <br>
+          -> id, name, workPeriod, address (연관된 필드끼리 묶어 클래스로)
+        </li>
+        <li>
+          사용법: @Embeddable(값 타입 정의하는 곳), @Embedded(사용하는 곳), 기본 생성자 필수
+        </li>
+        <li>
+          장점: 재사용 가능, 높은 응집도, 모든 값 타입을 소유하고 있는 엔티티가 생명주기를 관리,
+          DB의 변경은 필요 없음, 객체 지향적, 객체와 테이블을 아주 세밀하게 매핑하는 것이 가능
+        </li>
+        <li>
+          한 엔티티에서 중복되는 필드가 있는 값타입 여러개 사용하려면 @AttributeOverride를 사용해 컬럼명 재정의 할 수 있다.
+        </li>
+        <li>
+          @MappedSuperclass VS @Embeddable <br>
+          상속 vs 위임의 개념이다.<br>
+          @MappedSuperclass 는 비교적 다수의 클래스에서 공통으로 사용할 수 있는 필드를
+          묶어놓은 클래스를 지정해서 사용할 때 사용해야 한다 (ex. 생성일, 수정일 등)<br>
+          하나의 객체는 하나만 상속할 수 있다.
+        </li>
+      </ul>
+    </li>
+    <li> 값 타입 공유 참조
+      <ul>임베디드 값타입을 여러 엔티티에서 공유해버리면 위험하다.
+        <li>같은 값을 가지는 게 아니라 같은 주소를 바라보기 때문에</li>
+        <li>각각 다르게 new 해서 사용해야 한다.</li>
+        <li>
+          객체 타입은 참조 값을 직접 대입하는 것을 막을 방법이 없다.<br>
+          -> 따라서 불변 객체로 만들어 버려서 생성 이후에 값의 수정을 못하게 해야 한다.
+        </li>
+        <li>결론: 임베디드 값타입은 항상 불변 객체로 만들어 사용해야 한다.</li>
+      </ul>
+    </li>
+    <li> 값 타입 비교
+      <ul>
+        <li>동일성 비교: 인스턴스의 참조값을 비교, == 사용</li>
+        <li>동등성 비교: 인스턴스의 실제값을 비교, equals() 사용</li>
+      </ul>
+    </li>
+    <li> 컬렉션 값 타입
+      <ul>
+        <li>값 타입을 하나 이상 저장할 때 사용</li>
+        <li>@ElementCollection, @CollectionTable 사용</li>
+        <li>
+          DB는 컬렉션을 같은 테이블에 저장할 수 없다.<br>
+          -> 컬렉션을 저장하기 위한 별도의 테이블이 필요하다.
+        </li>
+        <li>
+          수정시에 update가 아니라 delete-insert 된다.
+          (side-effect를 방지하기 위해 setter를 허용하지 않는 불변 객체로 만들기 때문)
+        </li>
+        <li>
+          컬렉션 값 타입을 굳이 사용해야 할까? Entity로 전환해서 cascade와 하는 것이 비슷<br>
+          - 값타입 컬렉션의 제약사항 <br>
+          <ol>
+            <li>값타입은 엔티티와 다르게 식별자 개념이 없다.</li>
+            <li>값 변경시 추적이 어렵다.</li>
+            <li>변경시 주인 엔티티와 연관된 모든 데이터 삭제 후 다시 저장한다.</li>
+            <li>값 타입 컬렉션을 매핑하는 테이블은 모든 컬럼을 묶어서 기본키를 구성해야 한다.
+              (null 허용 x, 중복 x)</li>
+            <li>생명주기를 엔티티에 의존한다.</li>
+            <li>공유하지 않는 것이 안전하다.(불변 객체로 만들어야 한다.)</li>
+          </ol>
+          - 결론: 차라리 Entity로 전환하는 게 나을수도 있다.(고려해야 한다.)<br>
+          값 타입을 사용할 때는 추적이 필요없고 정말 간단한 값들에만 사용해야 한다.<br>
+          Entity로 전환시에는<br>
+          1. 1:다 연관관계로 설정<br>
+          2. cascade (영속성 전이) + orphanremoval (고아 객체 제거) 로 설정
+        </li>
+      </ul>
+    </li>
+  </ul>
+</details>  
+
+<details>
+  <summary><h3 style="font-weight:bold;">어노테이션 정리</h3></summary>
 <ul>
   <li>@ManyToOne</li>
   <span>다대일 [N:1]</span>
@@ -136,3 +255,4 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
   <span>하나의 엔티티 내에서 연관성 있는 필드들을 다른 객체로 분리 후 사용하기 위해</span>
   <span>Embeddable은 타입을 정의하는 곳(클래스)에 표시, Embedded는 사용하는 곳(필드)에 표시</span>
 </ul>
+</details>
