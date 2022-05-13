@@ -229,6 +229,130 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
 </details>  
 
 <details>
+  <summary><h3 style="font-weight:bold;">객체 지향 쿼리 언어 정리</h3></summary>
+  <ol>
+    <li>JPA 는 다양한 쿼리 방법을 지원한다
+      <ul>
+        <li>JPQL (표준 문법)</li>
+        <li>QueryDSL</li>
+        <li>네이티브 SQL도 가능 (특정 DB에 종속적인 SQL 쿼리)</li>
+      </ul>
+    </li>
+    <li>JPQL이란?
+      <ul>
+        <li>객체 지향 쿼리 언어이고 테이블이 아닌 엔티티를 대상으로 쿼리를 작성하는 문법</li>
+        <li>가장 단순한 조회 방법</li>
+        <li>추상화된 형태라 SQL에 의존하지는 않지만 SQL로 변환돼서 실행된다.</li>
+        <li>문자열 형태이기 때문에 동적 쿼리를 해결하기가 어렵다.</li>
+      </ul>
+    </li>
+    <li>프로젝션
+      <ul>
+        <li>select 절에 조회할 대상을 지정하는 것, 엔티티의 일부 데이터만을 가져오게 하는 기능</li>
+        <li>대상: 엔티티, 임베디드 타입, 스칼라 타입</li>
+        <li>임베디드 타입은 조회의 시작점이 될 수 없다는 제약이 있다.<br>
+        -> Address가 임베이드 타입이면, String query = "SELECT o.address FROM Order o" / List<Address> addresses = em.createQuery( query, Address.class ).getResultList(); <br>
+          이렇게 엔티티로 부터 가져와야 한다.</li>
+        <li>여러 타입을 가져오려면 DTO를 따로 만들어서 가져오는 방법이 좋다.<br>
+          ex. List<MemberDTO> result = em.createQuery("select new jpql.MemberDTO(m.username, m.age) from MemberDTO m ", MemberDTO.class) <br>
+          주의점: 엔티티가 아니기 때문에 new 키워드를 사용해 생성자를 사용하듯이 작성해야 한다.<br>
+          패키지 경로를 다 적어줘야 한다. (queryDSL에서는 import 가능)<br>
+          DTO에 생성자를 만들어 줘야한다. 
+        </li>
+      </ul>
+    </li>
+    <li>페이징 API
+      <p>setFirstResult(int startPosition) : 시작 위치 (index)</p>
+      <p>setMaxResult(int maxResult) : 조회할 데이터 수</p>
+    </li>
+    <li>join
+      <p>내부 조인 inner join</p>
+      <p>외부 조인 left (outer) join</p>
+      <p>세타 조인</p>
+    </li>
+    <li>서브쿼리
+      <p>JPA 에서는 where, having 절 + 하이버네이트에서 지원: select 절에서 사용 가능</p>
+      <p>but, from 절에서는 사용할 수 없다. -> join으로 풀어서 or 쿼리 두 번으로 나눠서 해결</p>
+    </li>
+    <li>경로 표현식
+      <ul>
+        <li>상태필드 : 단순히 값을 저장하기 위한 필드, 경로 탐색의 끝이라 더이상 탐색 X<br>
+          ex. m.username
+        </li>
+        <li>연관필드
+          <ul>
+            <li>단일 값 연관 필드 : @ManyToOne, @OneToOne / 대상이 엔티티일때<br>
+              묵시적 내부 조인(inner join) 발생, 탐색 O <br>
+              ex. m.team
+            </li>
+            <li>*컬렉션 값 연관 필드 : @OneToMany, @ManyToMany / 대상이 컬렉션일때<br>
+              묵시적 내부 조인 발생, 탐색 X <br>
+              ex. m.orders <br>
+              -> 컬렉션이니까 특정 데이터를 가져올 수 없어서 필드 탐색이 불가능하다. <br>
+              -> from 절에서 명시적 조인을 통해 별칭 얻어서 별칭으로부터 탐색 가능하다. 
+              -> ex. select m.username from Team t join t.members m (O) <br>
+              select t.members.username from Team t (X) <br>
+              => 결론: 묵시적 조인은 사용하면 안좋다. 명시적 조인을 사용해서 탐색해야 한다.<br>
+              - join은 SQL 튜닝에 중요 포인트이고, 묵시적 join은 어떻게 생성될지 파악하기 어렵기 때문에
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>https://github.com/tkdlek0501/jpa-basic/blob/main/src/main/java/jpa/basic/example/MemberRepository.java</li>
+  </ol>
+</details> 
+
+<details>
+  <summary><h3 style="font-weight:bold;">Fetch Join</h3></summary>
+  <p>JPA를 사용하는 실무에서 가장 중요한 포인트</p>
+  <ul>
+    <li>SQL join의 종류가 아니다.</li>
+    <li>JPQL에서 성능 최적화를 위해 제공하는 기능</li>
+    <li>연관된 엔티티나 컬렉션을 SQL 한 번에 함께 조회</li>
+    <li>join fetch 명령어를 사용</li>
+    <li>기본은 inner join</li>
+  </ul>
+  <p>ex. 회원 조회시 연관된 팀도 함께 조회(한 번의 SQL)</p>
+  <ul>
+    <li>JPQL) select m from Member m join fetch m.team</li>
+    <li>SQL) select m.*, t.* from member m inner join team t on m.team_id = t.team_id</li>
+  </ul>
+  <p>주의점: 1:다 연관관계(컬렉션) 에서 데이터 중복이 일어날 수 있다<br>
+    -> distinct로 해결<br>
+    SQL의 distinct 기능 + 같은 식별자를 가진 엔티티 중복 제거
+  </p>
+  <ul>fetch join 과 일반 join의 차이
+    <li>일반 join 은 실행시 연관된 엔티티를 함께 조회하지 않음</li>
+    <li>JPQL 은 결과 반환시 연관 관계 고려 x, 단지 select 절에 지정한 엔티티만 조회한다</li>
+    <li>팀 엔티티만 조회하고, 회원 엔티티는 조회 x</li>
+    <li>fetch join 사용할 때만 연관된 엔티티도 함께 조회되는 것(즉시 로딩)</li>
+    <li>요약: JPQL에서는 fetch join을 사용할 때만 연관된 엔티티를 함께 조회한다 (그냥 join은 연관 관계 고려 x)</li>
+    <li>또한 fetch join은 즉시 로딩이다</li>
+  </ul>
+  <ol>fetch join의 특징과 한계
+    <li>fetch join 대상에는 별칭을 줄 수 없다. <br>
+      ex. fetch join t.members m 이렇게 별칭(as)를 주고 where 절에 m.age > 10 이런 조건을 주는 것은 안된다. <br>
+      : team 으로부터 member 탐색시 member 전체가 조회되지 않고 일부만 조회하게 되므로 탐색에 누락이 생긴다. 객체 그래프를 탐색한다는 것은 전체를 조회한다는 개념 <br>
+      따라서 일부만 조회하고 싶다면 fetch join이 아니라 아예 따로 쿼리를 생성해야 한다. 
+    </li>
+    <li>둘 이상의 컬렉션은 fetch join 할 수 없다.<br>
+      1:다 하나도 데이터 중복이 생기는데 둘 이상이면 예상치 못한 join이 발생할 수 있다.
+    </li>
+    <li>컬렉션(1:다) fetch join하면 페이징 API 쓸 수 없다.(1:1, 다:1은 페이징 가능)<br>
+      1:다 에서 페이징 API를 쓰려면 <br>
+      1. 다:1 로 조회하는 쿼리로 변경
+      2. 1:다를 쓰려면 @Batchsize 로 in() 쿼리를 추가해서 페이징 해줘야한다. (연관된 엔티티 몇 row 조회할지 설정)
+    </li>
+    <li>결론(fetch join을 사용 유의점)<br>
+      fetch join 은 객체 그래프를 유지할 때는 효과적(fetch join의 대상을 별칭으로 지정하고 조건식을 만들면 안된다.)<br>
+      모든 것을 fetch join으로 해결할 수는 없다.<br>
+      통계 등 엔티티가 가진 모양이 아닌 전혀 다른 결과를 내야 한다면, fetch join 보다는 일반 join을 사용해서 필요한 data들만 조회해서 DTO로 반환하는 것이 효과적이다.
+    </li>
+  </ol>
+</details>
+
+<details>
   <summary><h3 style="font-weight:bold;">어노테이션 정리</h3></summary>
 <ul>
   <li>@ManyToOne</li>
