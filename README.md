@@ -344,7 +344,7 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
       1. 다:1 로 조회하는 쿼리로 변경
       2. 1:다를 쓰려면 @Batchsize 로 in() 쿼리를 추가해서 페이징 해줘야한다. (연관된 엔티티 몇 row 조회할지 설정)
     </li>
-    <li>결론(fetch join을 사용 유의점)<br>
+    <li>결론(fetch join 사용 유의점)<br>
       fetch join 은 객체 그래프를 유지할 때는 효과적(fetch join의 대상을 별칭으로 지정하고 조건식을 만들면 안된다.)<br>
       모든 것을 fetch join으로 해결할 수는 없다.<br>
       통계 등 엔티티가 가진 모양이 아닌 전혀 다른 결과를 내야 한다면, fetch join 보다는 일반 join을 사용해서 필요한 data들만 조회해서 DTO로 반환하는 것이 효과적이다.
