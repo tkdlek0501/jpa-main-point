@@ -358,9 +358,21 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
   <li>1:N, 즉 컬렉션을 조회할 때는 다음과 같은 사항들을 주의해야 한다.</li>
   <li>1:N을 fetch join 해서 가져오면 데이터 수가 뻥튀기 된다.(N 쪽을 기준으로 row가 만들어지기 때문)</li>
   <li>위 같은 문제를 jpql의 distinct 로 해결할 수는 있지만, (같은 식별자의 data 중복을 제거 + SQL의 distinct)</li>
-  <li>1. 1:N 관계를 fetch join하면 paging 불가능 (실제 쿼리가 아닌 메모리 단계에서 페이징 처리가 됨)</li>
+  <li>1. 1:N 관계를 fetch join하면 paging 불가능 (SQL결과는 뻥튀기 돼있어, JPA가 실제 쿼리가 아닌 메모리 단계에서 페이징 처리를 하기 때문에)</li>
   <li>2. 1:N 관계 fetch join은 1개만 사용해야 한다. (1:N:N:... 이렇게 사용하면 데이터 조회시 부정합 발생 가능)</li>
 </ul>
+  <ol> 해결방안
+    <li>먼저 ToOne 관계는 모두 fetch join을 걸어준다. (N:1, 1:1 관계는 data 중복을 발생시키지 않기 때문에 한번에 join해서 가져오도록 한다.)</li>
+    <li>컬렉션은 지연 로딩으로 조회하도록 한다. (컬렉션은 jpql에서 fetch join 걸지 않고, fetchType:LAZY 로 조회되도록 내버려둔다.)</li>
+    <li>지연 로딩 성능을 최적화(N+1 문제 방지) 하기 위해 fetch size를 설정해준다. 
+      (1+N 방식의 조회가 아니라 IN 쿼리로 1+1 조회가 되도록 해준다. 즉 테이블 당 한개의 쿼리만 날려서 조회된다.)
+      <ol>방법
+        <li>글로벌(일반적으로 사용) : propertise에서 spring.jpa.properties.hibernate.default_batch_fetch_size: 개수</li>
+        <li>개별 : @OneToMany 설정해둔 필드 값에 @BatchSize(size = 개수)</li>
+      </ol>
+    </li>
+    <li>IN query 개수 max는 1000개라고 생각하면 된다. (100~500 사이가 적당)</li>
+  </ol>
 </details>
 
 <details>
