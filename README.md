@@ -304,12 +304,12 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
 </details> 
 
 <details>
-  <summary><h3 style="font-weight:bold;">Fetch Join</h3></summary>
+  <summary><h3 style="font-weight:bold;">Fetch Join 내용 정리</h3></summary>
   <p>JPA를 사용하는 실무에서 가장 중요한 포인트</p>
   <ul>
     <li>SQL join의 종류가 아니다.</li>
     <li>JPQL에서 성능 최적화를 위해 제공하는 기능</li>
-    <li>연관된 엔티티나 컬렉션을 SQL 한 번에 함께 조회</li>
+    <li>연관된 엔티티나 컬렉션을 SQL 한 번에 함께 조회 (테이블이 아닌 엔티티를 기준으로 조회)</li>
     <li>join fetch 명령어를 사용</li>
     <li>기본은 inner join</li>
   </ul>
@@ -350,6 +350,17 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
       통계 등 엔티티가 가진 모양이 아닌 전혀 다른 결과를 내야 한다면, fetch join 보다는 일반 join을 사용해서 필요한 data들만 조회해서 DTO로 반환하는 것이 효과적이다.
     </li>
   </ol>
+</details>
+
+<details>
+  <summary><h3 style="font-weight:bold;">Fetch Join 실전 주의 사항 및 문제 해결 방법</h3></summary>
+<ul> 주의점
+  <li>1:N, 즉 컬렉션을 조회할 때는 다음과 같은 사항들을 주의해야 한다.</li>
+  <li>1:N을 fetch join 해서 가져오면 데이터 수가 뻥튀기 된다.(N 쪽을 기준으로 row가 만들어지기 때문)</li>
+  <li>위 같은 문제를 jpql의 distinct 로 해결할 수는 있지만, (같은 식별자의 data 중복을 제거 + SQL의 distinct)</li>
+  <li>1. 1:N 관계를 fetch join하면 paging 불가능 (실제 쿼리가 아닌 메모리 단계에서 페이징 처리가 됨)</li>
+  <li>2. 1:N 관계 fetch join은 1개만 사용해야 한다. (1:N:N:... 이렇게 사용하면 데이터 조회시 부정합 발생 가능)</li>
+</ul>
 </details>
 
 <details>
