@@ -353,7 +353,7 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
 </details>
 
 <details>
-  <summary><h3 style="font-weight:bold;">Fetch Join 실전 주의 사항 및 문제 해결 방법</h3></summary>
+  <summary><h3 style="font-weight:bold;">Fetch Join 사용 주의 사항 및 문제 해결 방법</h3></summary>
 <ul> 주의점
   <li>1:N, 즉 컬렉션을 조회할 때는 다음과 같은 사항들을 주의해야 한다.</li>
   <li>1:N을 fetch join 해서 가져오면 데이터 수가 뻥튀기 된다.(N 쪽을 기준으로 row가 만들어지기 때문)</li>
