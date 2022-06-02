@@ -375,6 +375,91 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
   </ol>
 </details>
 
+
+<h3 style="font-weight:bold;">JPA 실전 예제(최적의 방법 정리)</h3>
+<p>권장순서</p>
+<ol>
+  <li>엔티티 조회 방식으로 우선 접근
+    <ul>
+      <li>fetch join 으로 쿼리 수 최적화</li>
+      <li>페이징이 필요하다면 hibernate.default_batch_fetch_size or @BatchSize 설정</li>
+    </ul>
+  </li>
+  <li>엔티티 조회 방식으로 해결 안되면 DTO로 바로 조회</li>
+  <li>DTO 바로 조회 방식도 해결 안되면 네이티브 SQL or jdbc Template 활용</li>
+</ol>
+  
+```java
+// 엔티티 조회
+      // *1:N 컬렉션 조회시 fetch join 이용 최적 방법; fetch size(in 쿼리내 개수) 이용
+      // 컬렉션은 LAZY 로딩
+	    // 페이징 사용 가능
+	public List<Order> findAllPaging(int offset, int limit) {
+		return em.createQuery(
+				"SELECT o FROM Order o" +
+				" LEFT JOIN FETCH o.member m" +
+				" LEFT JOIN FETCH o.delivery d", 
+				Order.class
+				).setFirstResult(offset)
+				.setMaxResults(limit)
+				.getResultList();
+	}
+```
+
+```java
+// 엔티티를 DTO로 변환 방법
+// Entity -> DTO 변환 방법 (stream 사용)
+  List<Order> orders = orderRepository.findAll();
+
+		List<OrderDto> result = orders.stream()
+				.map(o -> new OrderDto(o))
+				.collect(Collectors.toList());
+		
+		return result;
+```  
+    
+```java
+// DTO 직접 조회
+    // *1:N 컬렉션 DTO로 바로 조회 최적 방법
+    // 페이징 사용 가능 (order(1) 기준으로 조회하므로)
+	public List<OrderQueryDto> findAllByDto_optimization() {
+		// 1. order 조회
+		List<OrderQueryDto> result = findOrders(); 
+		
+		// 2. 모든 orderId List
+		List<Long> orderIds = result.stream()
+		.map(o -> o.getOrderId())
+		.collect(Collectors.toList());
+		
+		// 3. orderId로 orderItem 조회 
+    // 이 부분은 queryDSL 로 간편화 가능
+		List<OrderItemQueryDto> orderItems = em.createQuery(
+			"select new jpabook.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
+					" from OrderItem oi" +
+					" join oi.item i" +
+					" where oi.order.id in :orderIds", OrderItemQueryDto.class)
+			.setParameter("orderIds", orderIds)
+			.getResultList();
+		
+		// 4. groupingBy를 이용해서 key:orderId로 value:orderItems(List)를 묶어서 Map으로 변환
+		Map<Long, List<OrderItemQueryDto>> orderItemMap = orderItems.stream()
+			.collect(Collectors.groupingBy(orderItemQueryDto -> orderItemQueryDto.getOrderId()));
+		
+		// 5. forEach 돌리며 넣어주기 (애플리케이션에서 for문)
+		result.forEach(o -> o.setOrderItems(orderItemMap.get(o.getOrderId()))); // orderItem 넣어줌
+		
+		return result;
+	}
+  
+  private List<OrderQueryDto> findOrders(){
+		return em.createQuery(
+				"SELECT new jpabook.jpashop.repository.order.query.OrderQueryDto(o.id, m.name, o.orderDate, o.status, d.address) FROM Order o" +
+				" JOIN o.member m" + 
+				" JOIN o.delivery d", OrderQueryDto.class
+				).getResultList();
+	}
+```   
+    
 <details>
   <summary><h3 style="font-weight:bold;">어노테이션 정리</h3></summary>
 <ul>
