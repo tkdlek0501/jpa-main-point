@@ -1,5 +1,5 @@
 # jpa-main-point
-JPA 공부 정리
+JPA 정리
 
 <details>
   <summary><h3 style="font-weight:bold;">영속성 컨텍스트</h3></summary>
