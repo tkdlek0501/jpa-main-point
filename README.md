@@ -460,6 +460,8 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
 	}
 ```   
 
+
+
 <details>
   <summary><h3 style="font-weight:bold;">OSIV</h3></summary>
 	<p>OSIV는 true(기본값)이면 transaction 종료시에도 영속 상태를 유지하고 DB 커넥션도 유지 (이 때문에 지연로딩이 가능 but 연결을 오래 유지하면 문제 발생 가능)</p>
@@ -468,7 +470,12 @@ getReference()를 통해 같은 id로 프록시로만 조회해도 모두 같음
 	<p>ADMIN 페이지처럼 커넥션을 많이 사용하지 않는 애플리케이션이면 true로 설정해도 된다</p>
 	<p>spring.jpa.open-in-view=false</p>
 </details>	
-    
+ 
+<details>
+    <summary><h3 style="font-weight:bold;">사용자 정의 레포지토리</h3></summary>
+
+</details>
+   
 <details>
   <summary><h3 style="font-weight:bold;">어노테이션 정리</h3></summary>
 <ul>
